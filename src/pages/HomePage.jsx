@@ -10,7 +10,7 @@ const HomePage = () => {
       </div>
       
       <div className="auth-options">
-        <Link to="/admin" className="auth-option">
+        <Link to="/login/admin" className="auth-option">
           <div className="auth-icon">
             <i className="fas fa-user"></i>
           </div>
