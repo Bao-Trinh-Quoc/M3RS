@@ -1,5 +1,24 @@
-[
-    { "username": "admin1", "password": "123", "role": "admin" },
-    { "username": "sv1", "password": "123", "role": "student" }
+{
+  "admin": [
+    {
+      "username": "admin",
+      "password": "admin123",
+      "role": "admin"
+    }
+  ],
+  "students": [
+    {
+      "username": "student1",
+      "password": "student123",
+      "role": "student",
+      "studentId": "2021001"
+    },
+    {
+      "username": "student2",
+      "password": "student456",
+      "role": "student",
+      "studentId": "2021002"
+    }
   ]
+}
   

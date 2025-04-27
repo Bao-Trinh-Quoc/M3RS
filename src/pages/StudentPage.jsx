@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/StudentPage.css';
 import SidebarStudent from '../components/Student/SidebarStudent';
 import HeaderStudent from '../components/Student/HeaderStudent';
@@ -9,6 +10,7 @@ import StudentList from '../components/Student/StudentList';
 import StudentDetail from '../components/Student/StudentDetail';
 
 const StudentPage = () => {
+  const navigate = useNavigate();
   const [rooms, setRooms] = useState([
     { id: 1, name: 'H2-101', capacity: 4, equipment: 'Projector' },
     { id: 2, name: 'H2-102', capacity: 6, equipment: 'Whiteboard' },
@@ -25,6 +27,13 @@ const StudentPage = () => {
     time: '',
   });
   const [selectedMenu, setSelectedMenu] = useState('booking-list');
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || 'null');
+    if (!user || user.type !== 'student') {
+      navigate('/login/student');
+    }
+  }, [navigate]);
 
   const handleSearchChange = (e) => {
     setSearchCriteria({
@@ -117,8 +126,6 @@ const StudentPage = () => {
               <StudentDetail student={selectedStudent} />
             </div>
           )}
-
-          {/* Có thể thêm các phần nội dung khác cho các menu khác */}
         </div>
       </div>
     </div>
