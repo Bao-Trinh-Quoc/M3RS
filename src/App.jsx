@@ -6,12 +6,18 @@ import AdminPage from './pages/Adminpage';
 import ConfirmList from './components/Admin/ConfirmList';  // Sửa lại đường dẫn import đúng
 
 import RoomList from './components/Admin/RoomList';  // Đảm bảo đường dẫn đúng
+import StudentPage from './pages/StudentPage';
+
+
 function App() {
   return (
     <Router>
     <Routes>
       {/* Route chính cho trang home */}
       <Route path="/" element={<HomePage />} />
+
+      {/* Route cho trang student */}
+      <Route path="/login/student" element={<StudentPage />} />
 
       {/* Route chính cho trang admin */}
       <Route path="/admin" element={<AdminPage />}>
