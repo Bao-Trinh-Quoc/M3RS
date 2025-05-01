@@ -1,7 +1,8 @@
 import React from 'react';
-import '../../components/Admin/Header.css'; // dùng lại css của Header
+import { useNavigate } from 'react-router-dom';
+import '../../components/Admin/Header.css'; // dùng lại CSS
 
-const HeaderStudent = () => {
+const HeaderStudent = ({ onLogout }) => {
   return (
     <header className="header">
       <div className="menu-icon">
@@ -9,9 +10,15 @@ const HeaderStudent = () => {
       </div>
 
       <div className="header-right">
-        <img src="/images/logo-bach-khoa-dongphucsongphu2.png" alt="BK logo" className="admin-logo" />
+        <img
+          src="/images/logo-bach-khoa-dongphucsongphu2.png"
+          alt="BK logo"
+          className="admin-logo"
+        />
         <span className="username">STUDENT</span>
-        <button className="logout-button">Đăng xuất</button>
+        <button className="logout-button" onClick={onLogout}>
+          Đăng xuất
+        </button>
       </div>
     </header>
   );

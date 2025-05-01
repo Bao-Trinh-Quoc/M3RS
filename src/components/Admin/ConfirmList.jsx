@@ -1,41 +1,105 @@
-import React, { useState } from 'react';
-import RegistrationCard from './RegistrationCard'; // Đảm bảo đường dẫn đúng
-import Pagination from './Pagination'; // Import Pagination nếu có
-
-// Dữ liệu giả lập cho danh sách đăng ký
-const dummyRequests = [
-  { room: 'H2-102', student: 'Nguyễn Văn A', time: 'Tiết 2-5 (3/4/2025)' },
-  { room: 'H2-105', student: 'Trần Thị B', time: 'Tiết 6-7 (4/4/2025)' },
-  { room: 'H2-106', student: 'Lê Văn C', time: 'Tiết 1-3 (5/4/2025)' },
-  { room: 'H2-107', student: 'Phan Thị D', time: 'Tiết 4-5 (6/4/2025)' },
-  { room: 'H2-108', student: 'Nguyễn Thị E', time: 'Tiết 2-6 (7/4/2025)' },
-  // Thêm các yêu cầu vào đây nếu cần
-];
+import React, { useEffect, useState } from 'react';
+import RegistrationCard from './RegistrationCard';
+import Pagination from './Pagination';
+import users from '../../data/users.json';
 
 const ConfirmList = () => {
-  // Dữ liệu phân trang
+  const [bookings, setBookings] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 2;
+  const itemsPerPage = 6;
 
-  // Hàm phân trang
+  const handleReject = async (bookingId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/bookings/${bookingId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmed: false, rejected: true }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Không thể cập nhật trạng thái');
+      }
+
+      // Cập nhật state để ẩn booking đã bị từ chối khỏi UI
+      setBookings((prev) => prev.filter((b) => b.id !== bookingId));
+    } catch (error) {
+      console.error('Lỗi khi từ chối:', error);
+    }
+  };
+
+  const handleConfirm = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:5000/bookings/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmed: true }),
+      });
+
+      if (!response.ok) throw new Error('Không thể cập nhật trạng thái');
+
+      // Cập nhật lại state sau khi xác nhận để loại bỏ booking đã được xác nhận
+      setBookings((prev) => prev.filter((b) => b.id !== id));
+    } catch (error) {
+      console.error('Lỗi khi xác nhận:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetch('http://localhost:5000/bookings')
+      .then((res) => {
+        if (!res.ok) throw new Error('Không thể lấy dữ liệu');
+        return res.json();
+      })
+      .then((data) => {
+        // Lọc các booking có cả confirmed và rejected đều là false
+        const unconfirmedAndUnrejected = data.filter(
+          (b) => b.confirmed === false && b.rejected === false
+        );
+        setBookings(unconfirmedAndUnrejected);
+      })
+      .catch((err) => console.error('Lỗi khi fetch bookings:', err));
+  }, []);
+
+  // Lấy tên sinh viên từ studentId
+  const getStudentName = (studentId) => {
+    const student = users.students.find((s) => String(s.studentId) === String(studentId));
+    return student ? student.name : 'Không rõ tên';
+  };
+
+  // Phân trang
+  const indexOfLast = currentPage * itemsPerPage;
+  const indexOfFirst = indexOfLast - itemsPerPage;
+  const currentBookings = bookings.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(bookings.length / itemsPerPage);
+
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  // Tính toán các yêu cầu hiển thị theo trang
-  const indexOfLastRequest = currentPage * itemsPerPage;
-  const indexOfFirstRequest = indexOfLastRequest - itemsPerPage;
-  const currentRequests = dummyRequests.slice(indexOfFirstRequest, indexOfLastRequest);
 
   return (
     <div>
       <h2>Danh sách cần xác nhận</h2>
 
       <div className="cards">
-        {currentRequests.map((request, index) => (
-          <RegistrationCard key={index} data={request} />
-        ))}
+        {currentBookings.length === 0 ? (
+          <p>Không có đăng ký nào</p>
+        ) : (
+          currentBookings.map((booking) => (
+            <RegistrationCard
+              key={booking.id}
+              room={booking.roomName}
+              student={`Sinh viên: ${getStudentName(booking.studentId)} \n MSSV: ${booking.studentId}`}
+              time={booking.time}
+              onApprove={() => handleConfirm(booking.id)}
+              onReject={() => handleReject(booking.id)} // Xử lý từ chối
+            />
+          ))
+        )}
       </div>
 
-      <Pagination currentPage={currentPage} totalPages={Math.ceil(dummyRequests.length / itemsPerPage)} paginate={paginate} />
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        paginate={paginate}
+      />
     </div>
   );
 };

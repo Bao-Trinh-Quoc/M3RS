@@ -11,13 +11,16 @@
       "username": "student1",
       "password": "student123",
       "role": "student",
-      "studentId": "2021001"
+      "studentId": "2021001",
+      "name":"Nguyen Van A"
+
     },
     {
       "username": "student2",
       "password": "student456",
       "role": "student",
-      "studentId": "2021002"
+      "studentId": "2021002",
+      "name":"Nguyen Minh B"
     }
   ]
 }

@@ -9,16 +9,13 @@ import BookingList from '../components/Student/BookingList';
 import StudentList from '../components/Student/StudentList';
 import StudentDetail from '../components/Student/StudentDetail';
 
+const API_BASE = 'http://localhost:5000';
+
 const StudentPage = () => {
   const navigate = useNavigate();
-  const [rooms, setRooms] = useState([
-    { id: 1, name: 'H2-101', capacity: 4, equipment: 'Projector' },
-    { id: 2, name: 'H2-102', capacity: 6, equipment: 'Whiteboard' },
-    { id: 3, name: 'H2-103', capacity: 2, equipment: 'TV Screen' },
-  ]);
-  const [bookings, setBookings] = useState([
-    { id: 1, roomName: 'H2-101', time: '2025-03-02 10:00' },
-  ]);
+  const [studentId, setStudentId] = useState(null);
+  const [rooms, setRooms] = useState([]);
+  const [bookings, setBookings] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [searchCriteria, setSearchCriteria] = useState({
@@ -29,11 +26,26 @@ const StudentPage = () => {
   const [selectedMenu, setSelectedMenu] = useState('booking-list');
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || 'null');
-    if (!user || user.type !== 'student') {
+    const storedUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || 'null');
+    if (!storedUser || storedUser.role !== 'student') {
       navigate('/login/student');
+    } else {
+      setStudentId(storedUser.studentId);
     }
   }, [navigate]);
+
+  // Fetch rooms and bookings from API
+  useEffect(() => {
+    fetch(`${API_BASE}/rooms`)
+      .then(res => res.json())
+      .then(data => setRooms(data))
+      .catch(err => console.error('Error loading rooms:', err));
+
+    fetch(`${API_BASE}/bookings`)
+      .then(res => res.json())
+      .then(data => setBookings(data))
+      .catch(err => console.error('Error loading bookings:', err));
+  }, []);
 
   const handleSearchChange = (e) => {
     setSearchCriteria({
@@ -61,30 +73,63 @@ const StudentPage = () => {
     setSelectedStudent(student);
   };
 
-  const handleBooking = () => {
+  const handleBooking = async () => {
     if (!selectedRoom || !searchCriteria.time) {
       alert('Vui lòng chọn phòng và thời gian đặt phòng');
       return;
     }
+
+    const isConflict = bookings.some(
+      (b) => b.roomName === selectedRoom.name && b.time === searchCriteria.time
+    );
+
+    if (isConflict) {
+      alert('Phòng đã được đặt vào thời gian này. Vui lòng chọn thời gian khác.');
+      return;
+    }
+
     const newBooking = {
-      id: bookings.length + 1,
+      studentId: studentId,
       roomName: selectedRoom.name,
       time: searchCriteria.time,
     };
-    setBookings([...bookings, newBooking]);
-    alert(`Đặt phòng thành công cho phòng ${selectedRoom.name} vào lúc ${searchCriteria.time}`);
-    setSelectedRoom(null);
-    setSearchCriteria({ capacity: '', equipment: '', time: '' });
-  };
 
+    try {
+      const response = await fetch(`${API_BASE}/bookings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newBooking),
+      });
+
+      if (response.ok) {
+        const createdBooking = await response.json();
+        setBookings([...bookings, createdBooking]);
+        alert(`Đặt phòng thành công cho phòng ${selectedRoom.name} vào lúc ${searchCriteria.time}`);
+        setSelectedRoom(null);
+        setSearchCriteria({ capacity: '', equipment: '', time: '' });
+      } else {
+        alert('Lỗi khi đặt phòng.');
+      }
+    } catch (error) {
+      console.error('Error during booking:', error);
+      alert('Đặt phòng thất bại.');
+    }
+  };
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('user');
+    navigate('/'); // Quay về trang chủ
+  };
   const handleMenuSelect = (menu) => {
     setSelectedMenu(menu);
   };
 
+  const studentBookings = bookings.filter(b => b.studentId === studentId);
+
   return (
     <div className="admin-container">
       <SidebarStudent onMenuSelect={handleMenuSelect} />
-      <HeaderStudent />
+      <HeaderStudent onLogout={handleLogout} />
       <div className="main-content">
         <div className="student-page">
           {selectedMenu === 'booking-list' && <h1>Danh sách đặt phòng</h1>}
@@ -92,9 +137,7 @@ const StudentPage = () => {
           {selectedMenu === 'student' && <h1>Danh sách sinh viên</h1>}
 
           {selectedMenu === 'booking-list' && (
-            <>
-              <BookingList bookings={bookings} />
-            </>
+            <BookingList bookings={studentBookings} />
           )}
 
           {selectedMenu === 'room-list' && (
