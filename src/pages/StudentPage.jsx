@@ -92,6 +92,8 @@ const StudentPage = () => {
       studentId: studentId,
       roomName: selectedRoom.name,
       time: searchCriteria.time,
+      confirmed: false,
+      rejected: false
     };
 
     try {
