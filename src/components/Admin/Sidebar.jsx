@@ -52,6 +52,4 @@ const Sidebar = () => {
     </div>
   );
 };
-
-// 👇👇👇 Quan trọng: export default
 export default Sidebar;

@@ -1,28 +1,26 @@
 .sidebar {
-  height: 100vh; /* Sidebar chiếm toàn chiều cao màn hình */
+  position: fixed;    /* Cố định sidebar */
+  top: 0;             /* Bắt đầu từ đỉnh viewport */
+  bottom: 0;          /* Kéo dài tới đáy viewport */
+  left: 0;
+  width: 250px;       /* Điều chỉnh theo ý bạn */
   display: flex;
   flex-direction: column;
+  background-color: #353549;
+  overflow: hidden;   /* Ẩn overflow ngang, chỉ cho .sidebar-bottom cuộn dọc */
 }
 
-/* TOP chiếm 1/4 */
 .sidebar-top {
-  flex: 1;
-  background-color: #221abe; /* Màu nền phần top */
-  padding: 10px 25px;
- 
+  /* Đây sẽ là phần header của sidebar, bạn có thể đặt chiều cao cố định hoặc auto */
+  background-color: #221abe;
+  padding: 17px 25px;
+  flex: 0 0 auto;     /* Không kéo giãn */
 }
 
-/* BOTTOM chiếm 3/4 */
 .sidebar-bottom {
+  flex: 1 1 auto;     /* Kéo giãn phần này để lấp đầy phần còn lại */
+  min-height: 0;      /* Quan trọng để overflow-y hoạt động */
+  padding: 10px 40px;
+  overflow-y: auto;   /* Cho phép cuộn dọc nếu menu dài */
   color: white;
-  flex: 16;
-  background-color: #353549; /* Màu nền phần bottom */
-  padding:10px 40px;
-  overflow-y: auto; /* Nếu nội dung nhiều thì cuộn */
-}
-
-.logo {
-  font-size: 5px;
-  font-weight: bold;
-  color: #6a1e1e;
 }
