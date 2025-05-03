@@ -70,7 +70,10 @@ PATCH   /rooms/:id     → Cập nhật trạng thái phòng
 
 ## 👩‍💻 Tác giả
 
-- **Họ tên**: [Nhóm Future Engineer]  
-- **GitHub**: [https://github.com/ten-cua-ban](https://github.com/ten-cua-ban)](https://github.com/Bao-Trinh-Quoc/M3RS.git)](https://github.com/Bao-Trinh-Quoc/M3RS.git)
+- **Họ tên**: 
+    - Trịnh Quốc Bảo
+    - Nguyễn Minh Thành
+    - Duơng Tú Tú
+- **GitHub**: [(https://github.com/Bao-Trinh-Quoc/M3RS.git)](https://github.com/Bao-Trinh-Quoc/M3RS.git)
 
 ---
